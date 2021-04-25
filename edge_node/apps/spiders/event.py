@@ -73,7 +73,6 @@ def get_event_bendibao():
         dic['content'] = ans
         con['content'] = ans
         result.append(con)
-    print(result)
     return result
 
 
@@ -105,7 +104,6 @@ def get_event_jiaoguanju():
             con['content'] = content
             result.append(con)
 
-    print(result)
     return result
 
 
@@ -194,7 +192,7 @@ def get_event_bus():
         # # 关闭数据库连接
         #     db.close()
         result.append(con)
-    print(result)
+
     return result
 
 
@@ -225,7 +223,6 @@ def get_event_yingjiju():
         if count >= tag_num:
             break
 
-    print(result)
     return result
 
 

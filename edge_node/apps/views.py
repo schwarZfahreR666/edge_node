@@ -8,6 +8,7 @@ from django.shortcuts import HttpResponse
 from django.http import JsonResponse
 from edge_node.apps.spiders.road import job_function
 from edge_node.apps.ner.predict_span import predict,init
+from edge_node.apps.spiders.event import get_event_yingjiju, get_event_bendibao, get_event_jiaoguanju, get_event_bus
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -63,3 +64,23 @@ def event_ner(request):
     res = predict(input_text, tokenizer, label_list, model, device, id2label)
 
     return JsonResponse(res)
+
+
+def getYingjiju(request):
+    res = get_event_yingjiju()
+    return JsonResponse(res, safe=False)
+
+
+def getBendibao(request):
+    res = get_event_bendibao()
+    return JsonResponse(res, safe=False)
+
+
+def getJiaoguanju(request):
+    res = get_event_jiaoguanju()
+    return JsonResponse(res, safe=False)
+
+
+def getBus(request):
+    res = get_event_bus()
+    return JsonResponse(res, safe=False)
