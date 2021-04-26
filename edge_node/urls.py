@@ -16,13 +16,14 @@ Including another URLconf
 from django.urls import path
 from edge_node.apps.views import get_cpu_state
 from edge_node.apps.views import get_road_info
-from edge_node.apps.views import road_info_switch
+from edge_node.apps.views import road_info_switch, get_road_info_state
 from edge_node.apps.views import event_ner, getYingjiju, getBus, getBendibao, getJiaoguanju
 
 urlpatterns = [
     path('getCpuState', get_cpu_state),
     path('getRoadInfo', get_road_info),
     path('switchRoadInfo', road_info_switch),
+    path('roadinfoState', get_road_info_state),
     path('eventNer', event_ner),
     path('getYingjiju', getYingjiju),
     path('getBendibao', getBendibao),

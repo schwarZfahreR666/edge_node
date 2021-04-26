@@ -847,9 +847,9 @@ def job_function():
     # feature = pd.DataFrame(data)
     # feature.to_csv(path+'/'+currentTime+'_bd_路况wks.csv',columns=columns)
 
-    getInfo(currentTime,path)
+    # getInfo(currentTime,path)
     # Search(currentTime,path)
-    getWeather(aks[0],currentTime,path)
+    # getWeather(aks[0],currentTime,path)
     print(currentTime+'done')
     return 1
 

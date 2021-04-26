@@ -37,6 +37,13 @@ def get_road_info(request):
 
 road_info_state = 0
 sched = 0
+
+
+def get_road_info_state(request):
+    global road_info_state
+    return JsonResponse({'road_info_state':road_info_state})
+
+
 def road_info_switch(request):
     global road_info_state
     global sched
@@ -46,12 +53,12 @@ def road_info_switch(request):
         sched.add_job(job_function, 'interval', minutes=15, start_date=today+' 08:00:00', end_date=today+' 20:00:00')
         sched.start()
         road_info_state = 1
-        res = {'code': 200, 'text': '定时获取路况开启'}
+        res = {'code': 200, 'text': '定时获取路况开启', 'state': road_info_state}
         return JsonResponse(res)
     if road_info_state == 1:
         sched.shutdown()
         road_info_state = 0
-        res = {'code': 200, 'text': '定时获取路况关闭'}
+        res = {'code': 200, 'text': '定时获取路况关闭', 'state': road_info_state}
         return JsonResponse(res)
 
 
