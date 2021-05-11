@@ -179,6 +179,37 @@ roads = [
                     '京礼高速',
                 ]
 
+roads_at = [
+    '科学院南里西街',
+    '科学院南里东街',
+    '国家体育馆北路',
+    '安翔北路',
+    '慧忠路隧道',
+    '林萃路',
+    '奥林西路',
+    '天辰西路',
+    '天辰东路',
+    '北辰西路',
+    '北辰东路',
+    '科芸路',
+    '科芸南路',
+    '大屯路',
+    '北土城西路',
+    '京藏高速',
+    '北辰路',
+    '安立路',
+]
+
+
+roads_at_section = [
+    '科芸路',
+    '科芸南路',
+    '大屯路',
+    '北土城西路',
+    '京藏高速',
+    '北辰路',
+    '安立路',
+]
 
 def getSectionNum(text,road_name,direction):
     location = text.split(',')[1]
@@ -528,6 +559,58 @@ def getRoad_wks(road_name,ak,currentTime,saveTime):
         return res
 
 
+def getRoad_at(road_name,ak,currentTime,saveTime):
+    TrafficStatusUrl = 'http://api.map.baidu.com/traffic/v1/road?road_name='+road_name+'&city=北京市&ak='+ak
+    res = requests.get(url=TrafficStatusUrl).content
+    total_json = json.loads(res)
+    currentTime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    direction = 0
+    s_num = 1
+
+
+    if('description' in total_json):
+
+        description = total_json['description']
+        road_traffic = total_json['road_traffic'][0]
+        ro_len = len(road_traffic)
+
+        if(ro_len>1):
+            congestion_sections = road_traffic['congestion_sections']
+            con_len = len(congestion_sections)
+            for i in range(0,con_len):
+                congestion_section = congestion_sections[i]
+                speed = congestion_section['speed']
+                congestion_distance = congestion_section['congestion_distance']
+                congestion_trend = congestion_section['congestion_trend']
+                section_desc = congestion_section['section_desc']
+                print(section_desc)
+                document = section_desc
+
+
+                if '向' in document:
+                    pattern = re.compile(r'(.?)向(.?)')
+                    direction1 = pattern.match(document).group(1)
+                    direction2 = pattern.match(document).group(2)
+                    if direction1 == '南' or direction1 == '东':
+                        direction = 0
+                    elif direction1 == '北' or direction1 == '西':
+                        direction = 1
+
+                if road_name in roads_at_section:
+                    s_num = getSectionNum2(document,road_name+'__',direction)
+                    if s_num == -1:
+                        return -1
+                res = {'time':currentTime,'road_name':road_name,'description':description,'speed':speed,'congestion_distance':congestion_distance,'congestion_trend':congestion_trend,'section_desc':section_desc,'direction':direction,'section_id':s_num}
+                return res
+        else:
+            res = {'time':currentTime,'road_name':road_name,'description':description,'speed':'NULL','congestion_distance':'NULL','congestion_trend':'NULL','section_desc':'NULL','direction':direction,'section_id':s_num}
+            return res
+
+    else:
+        res = {'time':currentTime,'road_name':road_name,'description':'路名有误','speed':'NULL','congestion_distance':'NULL','congestion_trend':'NULL','section_desc':'NULL','direction':direction,'section_id':s_num}
+        return res
+
+
 def getInfo(currentTime,path):
     data = []
 
@@ -844,6 +927,56 @@ def job_function():
             count = 0
     db.close()
     columns = ['time','road_name','description','speed','congestion_distance','congestion_trend','section_desc']
+
+
+    data = []
+    count = 0
+    # 入库
+    # 打开数据库连接
+    db = pymysql.connect(host='39.99.192.63',
+                         database='DEMODB',
+                         port=3306,
+                         user='devops',
+                         password='devops',
+                         charset="utf8",
+                         use_unicode=True)
+    # 使用 cursor() 方法创建一个游标对象 cursor
+    cursor = db.cursor()
+    sql1 = "truncate table bd_road_at"
+    cursor.execute(sql1)
+    for road in roads_at:
+        road_name=road
+        ak = aks[count]
+        count+=1
+        res = getRoad_at(road_name,ak,cTime,currentTime)
+        if res == -1:
+            if count > 3:
+                count = 0
+            continue
+        # SQL 插入语句
+
+        sql = "INSERT INTO bd_road_at (time,road_name,description,speed,congestion_distance,congestion_trend,section_desc,direction,section_id)" \
+              "VALUES (%s, %s,  %s,  %s,  %s,%s,%s,%s,%s)" \
+              "ON DUPLICATE KEY UPDATE time=%s,road_name=%s,description=%s,speed=%s,congestion_distance=%s," \
+              "congestion_trend=%s,section_desc=%s,direction=%s,section_id=%s;"
+
+        try:
+            # 执行sql语句
+            cursor.execute("set names utf8;")
+            cursor.execute(sql,(res['time'],res['road_name'],res['description'],res['speed'],res['congestion_distance'],res['congestion_trend'],res['section_desc'],res['direction'],res['section_id'],res['time'],res['road_name'],res['description'],res['speed'],res['congestion_distance'],res['congestion_trend'],res['section_desc'],res['direction'],res['section_id']))
+            # 提交到数据库执行
+            db.commit()
+        except pymysql.Error as e:
+            print(e.args[0], e.args[1])
+            print(res['time'],res['road_name'],res['description'],res['speed'],res['congestion_distance'],res['section_desc'])
+            # 如果发生错误则回滚
+            db.rollback()
+            # 关闭数据库连接
+
+        data.append(res)
+        if count > 3:
+            count = 0
+    db.close()
     # feature = pd.DataFrame(data)
     # feature.to_csv(path+'/'+currentTime+'_bd_路况wks.csv',columns=columns)
 
