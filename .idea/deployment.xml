@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="devops@39.99.192.63:22" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="root@47.95.159.86:22" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
       <paths name="devops@39.99.192.63:22">
         <serverdata>
@@ -24,6 +24,34 @@
         </serverdata>
       </paths>
       <paths name="root@121.89.200.97:22">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/root/edge_node" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="root@47.95.159.86:22">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/root/edge_node" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="root@47.95.159.86:22 (1)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/root/edge_node" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="root@47.95.159.86:22 (2)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/root/edge_node" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="root@47.95.159.86:22 (3)">
         <serverdata>
           <mappings>
             <mapping deploy="/root/edge_node" local="$PROJECT_DIR$" />

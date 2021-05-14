@@ -8,6 +8,27 @@ import csv
 from datetime import datetime
 import pymysql
 
+
+url = "http://tiqu.linksocket.com:81/abroad?num=1&type=2&lb=1&sb=0&flow=1&regions=china&port=1&n=1"
+
+res = json.loads(requests.get(url).content)
+
+
+proxyHost = res['data'][0]['ip']
+proxyPort = res['data'][0]['port']
+
+proxyMeta = "http://%(host)s:%(port)s" % {
+
+    "host" : proxyHost,
+    "port" : proxyPort,
+}
+print(proxyMeta)
+
+proxies = {
+    # "http": proxyMeta,
+    "https": proxyMeta
+}
+
 myheaders = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
     "Accept-Encoding": "gzip, deflate, br",
@@ -85,7 +106,7 @@ def get_event_jiaoguanju():
     for i in range(1,2):
 
         start_url = 'http://jtgl.beijing.gov.cn/jgj/jgxx/gsgg/jttg/df7fa898-'+ str(i) +'.html'
-        res = requests.get(url = start_url,headers = myheaders)
+        res = requests.get(url=start_url, headers=myheaders)
         res.encoding = 'utf8'
         res_text=bs(res.text,'html.parser')
         lis = res_text.select(".mod_page_content_li")

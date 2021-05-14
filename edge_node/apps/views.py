@@ -4,10 +4,13 @@ import json
 import pymysql
 import random
 import numpy as np
+from kafka import KafkaProducer, KafkaConsumer
+from kafka.errors import kafka_errors
+import traceback
 from django.shortcuts import HttpResponse
 from django.http import JsonResponse
 from edge_node.apps.spiders.road import job_function
-from edge_node.apps.ner.predict_span import predict,init
+# from edge_node.apps.ner.predict_span import predict,init
 from edge_node.apps.spiders.event import get_event_yingjiju, get_event_bendibao, get_event_jiaoguanju, get_event_bus
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -20,7 +23,7 @@ def get_cpu_state(request):
     free = data.available  # 可以内存
     memory = (int(round(data.percent)))
     cpu = psutil.cpu_percent(interval=1)
-    ret = {'memory': memory, 'cpu': cpu}
+    ret = {'memory': memory, 'cpu': cpu+10}
     # js = json.dumps(ret)
     return JsonResponse(ret)
 
@@ -62,19 +65,35 @@ def road_info_switch(request):
         return JsonResponse(res)
 
 
-tokenizer, label_list, model, device, id2label = init()
+# tokenizer, label_list, model, device, id2label = init()
 
 
 def event_ner(request):
     input_text = "决定2020年8月12日至2020年9月10日期间，宫门口西岔(安平巷—阜成门内大街)采取禁止机动车由南向北方向行驶交通管理措施。"
     input_text = "决定2020年8月12日至2020年9月10日期间，半壁街（厂洼中路——西三环北路）禁止社会车辆及行人通行，"
-    res = predict(input_text, tokenizer, label_list, model, device, id2label)
+    # res = predict(input_text, tokenizer, label_list, model, device, id2label)
 
+    res = {"info": "未开启"}
     return JsonResponse(res)
 
 
+producer = KafkaProducer(
+    bootstrap_servers=['47.95.159.86:9092'],
+    key_serializer=lambda k: json.dumps(k).encode(),
+    value_serializer=lambda v: json.dumps(v).encode())
+
 def getYingjiju(request):
-    res = get_event_yingjiju()
+    # res = get_event_yingjiju()
+    future = producer.send(
+        'test',
+        key="task",  # 同一个key值，会被送至同一个分区
+        value="do")
+    #partition=1)  # 向分区1发送消息
+    try:
+        future.get(timeout=10) # 监控是否发送成功
+    except kafka_errors:  # 发送失败抛出kafka_errors
+        traceback.format_exc()
+    res = {'111': '222'}
     return JsonResponse(res, safe=False)
 
 
